@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: zuul
+
+server:  port: 3001
+
+eureka:  client:    service-url: 
+      defaultZone: http://eureka1:2001/eureka,http://eureka2:2002/eureka       
+#zuul 路由 默认配置,会去注册中心拉取服务端名字
+zuul:  routes:
+    item-service: /item-service/**
+    user-service: /user-service/**
+    order-service: /order-service/**#zuul默认开启ribbon转发轮询,没有开启重试
+  retryable: true       
+#转发轮询,重试配置 zuul默认集成ribbon   
+ribbon:
+  readTimeout: 1500 #读超时时间      
+  ConnectTimeout: 21000 #链接超时    
+  MaxAutoRetries: 1    #默认为0 可以自定义其它时间ConnectTimeout: 500     ReadTimeout: 1000
+  MaxAutoRetriesNextService: 1  #重试失败向后轮询服务器 默认1台      
+#如果需要对单个服务器进行设置,如下        
+#ribbon:
+#  readTimeout: 1500 #读超时时间      
+#  ConnectTimeout: 1000 #链接超时    
+##只针对一个服务进行配置
+#item-service:
+#  ribbon:
+#    MaxAutoRetries: 1    #默认为0 可以自定义其它时间ConnectTimeout: 500     ReadTimeout: 1000
+#    MaxAutoRetriesNextService: 2  #重试失败向后轮询服务器 默认1台      
+#熔断,降级超时时间
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 500 
+#暴露端点,监控使用
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream                               
